@@ -1,0 +1,8 @@
+README.rst
+setup.py
+mcspy/__init__.py
+mcspy/mcspy.py
+mcspy.egg-info/PKG-INFO
+mcspy.egg-info/SOURCES.txt
+mcspy.egg-info/dependency_links.txt
+mcspy.egg-info/top_level.txt

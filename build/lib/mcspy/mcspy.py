@@ -17,6 +17,15 @@ class worker:
 
 
 def matrix_assign(result_of_system, relation_total, relation_n, workers, num_of_group):
+    """
+    Assign the current result to the matrix which computes the relations between workers
+    :param result_of_system: The result of the whole MCS system
+    :param relation_total: The sum of relation between workers
+    :param relation_n: The number of tasks which done by a worker
+    :param workers: The workers in the current group
+    :param num_of_group: The number of workers in the current group
+    :return relation_total, relation_n
+    """
     for i in range(num_of_group):
         for j in range(num_of_group):
             if i != j:
@@ -26,7 +35,14 @@ def matrix_assign(result_of_system, relation_total, relation_n, workers, num_of_
 
 
 def matrix_renewal(relation_n, relation_pre, relation_total, num_of_system):
-    # Random和Epsilon放在最后统一计算，MAB是每次任务都要计算
+    """
+    Renewal the current result of the matrix which computes the relations between workers
+    :param relation_pre: The predicted relation between workers
+    :param relation_total: The sum of relation between workers
+    :param relation_n: The number of tasks which done by a worker
+    :param num_of_system: The workers in the whole system
+    :return relation_pre
+    """
     for i in range(num_of_system):
         for j in range(num_of_system):
             if relation_n[i][j] == 0:
@@ -38,6 +54,11 @@ def matrix_renewal(relation_n, relation_pre, relation_total, num_of_system):
 
 # relation_real
 def constant_produce(num_of_system):
+    """
+    Produce a series of random constants
+    :param num_of_system:
+    :return: relation_real, relation_var, ability_of_workers, abilities_var
+    """
     relation_real = random.random(size=(num_of_system, num_of_system))
     for i in range(num_of_system):
         relation_real[i] = np.round(relation_real[i], 3)
@@ -54,6 +75,15 @@ def constant_produce(num_of_system):
 
 
 def system_postprocess(relation_pre, workers, group_efficiency, times_total, num_of_group):
+    """
+    The postprocess after a MCS task
+    :param relation_pre: The predicted relation between workers
+    :param workers: The workers in the current group
+    :param group_efficiency: The efficiency of the current group
+    :param times_total: The number of tasks till now
+    :param num_of_group: The number of workers in the current group
+    :return: group_efficiency
+    """
     contribution_of_ones = np.zeros(num_of_group)
     for i in range(num_of_group):
         contribution_of_ones[i] = sum(relation_pre[workers[i]])
@@ -62,6 +92,12 @@ def system_postprocess(relation_pre, workers, group_efficiency, times_total, num
 
 
 def system_init(num_of_group, num_of_system):
+    """
+    Init the whole system
+    :param num_of_group: The number of workers in the current group
+    :param num_of_system: The number of workers in the whole system
+    :return: relation_total, relation_n, relation_pre, workers, person_efficiency, person_co, group_efficiency, min_index
+    """
     relation_total = np.zeros([num_of_system, num_of_system])
     relation_n = np.zeros([num_of_system, num_of_system])
     relation_pre = np.ones([num_of_system, num_of_system])
@@ -74,6 +110,12 @@ def system_init(num_of_group, num_of_system):
 
 
 def normalization(x, num_of_system):  # 归一化函数
+    """
+    Normalization Function
+    :param x: The param needs to be normalized
+    :param num_of_system: The number of workers in the whole system
+    :return: x
+    """
     for i in range(num_of_system):
         if max(x) - min(x) == 0:
             x = x
@@ -83,6 +125,14 @@ def normalization(x, num_of_system):  # 归一化函数
 
 
 def reselection_judge(workers, num_choice, i, num_of_group):
+    """
+    Judge the platform, prevent a worker be selected for twice
+    :param workers: The workers in the current group
+    :param num_choice: The number of switched workers in the current group
+    :param i: The times of tasks
+    :param num_of_group: The number of workers in the current group
+    :return: reselection_flag
+    """
     reselection_flag = 0
     for j in range(num_of_group):
         if workers[j] == num_choice[i]:
@@ -93,6 +143,11 @@ def reselection_judge(workers, num_choice, i, num_of_group):
 
 
 def epsilon_produce(times):
+    """
+    Produce a proper epsilon
+    :param times: The times of tasks
+    :return: epsilon
+    """
     if times == 0:
         epsilon = 1
     else:
@@ -101,6 +156,10 @@ def epsilon_produce(times):
 
 
 def random_unit(p):
+    """
+    :param p: The opportunity to trig the epsilon
+    :return: status
+    """
     return random.random() < p
 
 
@@ -140,6 +199,14 @@ def print_time(start, end):
 
 
 def group_work(workers, relation_real, num_of_group, ability_of_workers):
+    """
+    Work as a group
+    :param workers: The workers in the current group
+    :param relation_real: The real relation of the workers
+    :param num_of_group: The number of workers in the current group
+    :param ability_of_workers: The abilities of the workers
+    :return: group_result, person_result
+    """
     group_result = 0
     person_result = np.zeros(num_of_group)
 
@@ -153,6 +220,17 @@ def group_work(workers, relation_real, num_of_group, ability_of_workers):
 
 
 def result_produce(num_choice, pos_choice, workers, reselection_flag, num_of_group, relation_real, ability_of_workers):
+    """
+    Get the result
+    :param num_choice: The number of switched workers in the current group
+    :param pos_choice: The position of switched workers in the current group
+    :param workers: The workers in the current group
+    :param reselection_flag: To show whether the platform chose a worker for twice
+    :param num_of_group: The number of workers in the current group
+    :param relation_real: The real relation of the workers
+    :param ability_of_workers: The abilities of the workers
+    :return: result
+    """
     if reselection_flag == 1:
         result = group_work(workers, relation_real, num_of_group, ability_of_workers)
     else:
@@ -163,6 +241,15 @@ def result_produce(num_choice, pos_choice, workers, reselection_flag, num_of_gro
 
 
 def system_work_random(workers, num_of_group, num_of_system, relation_real, ability_of_workers):
+    """
+    Random Algorithm
+    :param workers: The workers in the current group
+    :param num_of_group: The number of workers in the current group
+    :param num_of_system: The number of workers in the whole system
+    :param relation_real: The real relation of the workers
+    :param ability_of_workers: The abilities of the workers
+    :return: result[0]
+    """
     pos_choice = np.zeros(num_of_system)
     num_choice = np.zeros(num_of_system)
     reselection_flag = 0
@@ -176,6 +263,18 @@ def system_work_random(workers, num_of_group, num_of_system, relation_real, abil
 
 
 def system_work_epsilon(workers, min_index, person_efficiency, epsilon, num_of_system, num_of_group, relation_real, ability_of_workers):
+    """
+    Epsilon-Greedy Algorithm
+    :param workers: The workers in the current group
+    :param min_index: The index of workers
+    :param person_efficiency: The efficiency of a single worker
+    :param epsilon: for epsilon-greedy
+    :param num_of_system: The number of workers in the whole system
+    :param num_of_group: The number of workers in the current group
+    :param relation_real: The real relation of the workers
+    :param ability_of_workers: The abilities of the workers
+    :return: result
+    """
     pos_choice = np.zeros(num_of_system)
     num_choice = np.zeros(num_of_system)
     reselection_flag = 0
@@ -191,7 +290,21 @@ def system_work_epsilon(workers, min_index, person_efficiency, epsilon, num_of_s
     return result
 
 
-def system_work_mab(workers, min_index, person_efficiency, person_co, times, epsilon, num_of_system, num_of_group, relation_real, ability_of_workers):
+def system_work_matrix(workers, min_index, person_efficiency, person_co, times, epsilon, num_of_system, num_of_group, relation_real, ability_of_workers):
+    """
+    Using a unique method to get the relation of workers
+    :param workers: The workers in the current group
+    :param min_index: The index of workers
+    :param person_efficiency: The efficiency of a single worker
+    :param person_co: The co-efficiency of a single worker
+    :param times: The time of tasks
+    :param epsilon: for epsilon-greedy
+    :param num_of_system: The number of workers in the whole system
+    :param num_of_group: The number of workers in the current group
+    :param relation_real: The real relation of the workers
+    :param ability_of_workers: The abilities of the workers
+    :return: result
+    """
     pos_choice = np.zeros(num_of_system)
     num_choice = np.zeros(num_of_system)
     regulatory_factor = float(1 / (1 + math.exp(-times)))  # 调节因子，当times的原点位置不加以修正的时候，达到了更好的效果

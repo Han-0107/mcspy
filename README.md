@@ -1,17 +1,11 @@
 # mcspy
 
 A Python Library for Mobile Crowdsensing Problems,
-with random, Epsilon-Greedy and New_MAB methods to build a MCS system and its group.
+with random, Epsilon-Greedy and matrix methods to build a MCS system and its group.
 
 ## Installation
 
     pip install mcspy
-
-## Author contact
-
-Han Yaohui
-
-1407210129@csu.edu.cn
 
 ## PyPI Address
 
